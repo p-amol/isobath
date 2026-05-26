@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
 
         self.index = 0
         self.error = False
+        self.outfile = None
 
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
@@ -524,50 +525,58 @@ class MainWindow(QMainWindow):
 
         self.activate_buttons()
 
-    def save_button(self):
+    def _write_output(self, outfile):
+        np.savetxt(outfile, self.output[0 : self.index], fmt="%4.4f")
+        QMessageBox.information(self, "File Saved", f"Successfully saved to {outfile}")
+
+    def _check_output(self):
         if not hasattr(self, "output") or self.output is None or self.output.size == 0:
             QMessageBox.warning(
                 self,
                 "No Data to Save",
                 "There is no data to save. Please compute angles first.",
             )
+            return False
+        return True
+
+    def save_button(self):
+        if not self._check_output():
             return
 
-        outfile = "file_coord_angle.txt"
+        if self.outfile is None:
+            outfile, _ = QFileDialog.getSaveFileName(
+                self,
+                "Save File",
+                "file_coord_angle.txt",
+                "Text Files (*.txt);;Data Files (*.dat);;All Files (*)",
+            )
+            if not outfile:
+                return
+            self.outfile = outfile
+
         try:
-            np.savetxt(outfile, (self.output[0 : self.index]), fmt="%4.4f")
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Icon.Information)
-            msg.setText("Information")
-            msg.setInformativeText(f"Saved to {outfile}")
-            msg.setWindowTitle("File Saved")
-            msg.exec()
+            self._write_output(self.outfile)
         except Exception as e:
             QMessageBox.critical(
                 self, "Save Error", f"An error occurred while saving the file: {e}"
             )
 
     def saveas_button(self):
-        if not hasattr(self, "output") or self.output is None or self.output.size == 0:
-            QMessageBox.warning(
-                self,
-                "No Data to Save",
-                "There is no data to save. Please compute angles first.",
-            )
+        if not self._check_output():
             return
 
         outfile, _ = QFileDialog.getSaveFileName(
             self,
-            "Save File",
-            filter="Text Files (*.txt);;Data Files (*.dat);;All Files (*)",
+            "Save File As",
+            self.outfile or "file_coord_angle.txt",
+            "Text Files (*.txt);;Data Files (*.dat);;All Files (*)",
         )
         if not outfile:
             return
+
         try:
-            np.savetxt(outfile, (self.output[0 : self.index]), fmt="%4.4f")
-            QMessageBox.information(
-                self, "File Saved", f"Successfully saved to {outfile}"
-            )
+            self._write_output(outfile)
+            self.outfile = outfile
         except Exception as e:
             QMessageBox.critical(
                 self, "Save Error", f"An error occurred while saving the file: {e}"
