@@ -30,8 +30,8 @@ dependencies = ["PyQt6", "matplotlib", "numpy", "netCDF4", "scipy"]
 isobath = "isobath.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/prakashamol/isobath"
-Issues = "https://github.com/prakashamol/isobath/issues"
+Homepage = "https://github.com/p-amol/isobath"
+Issues = "https://github.com/p-amol/isobath/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["isobath"]
