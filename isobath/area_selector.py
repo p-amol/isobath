@@ -122,16 +122,19 @@ class WindowSelector(QDialog):
             msg.exec()
             return
 
+        self.cbdim1.blockSignals(True)
+        self.cbdim2.blockSignals(True)
         self.cbdim1.clear()
         self.cbdim2.clear()
         self.cbdim1.addItem(self.default_text)
         self.cbdim2.addItem(self.default_text)
-        self.cbdim1.setEnabled(True)
-        self.cbdim2.setEnabled(True)
-
         for i in range(var.ndim):
             self.cbdim1.addItem(var.dimensions[i])
             self.cbdim2.addItem(var.dimensions[i])
+        self.cbdim1.blockSignals(False)
+        self.cbdim2.blockSignals(False)
+        self.cbdim1.setEnabled(True)
+        self.cbdim2.setEnabled(True)
 
     def on_submit(self):
         if (
