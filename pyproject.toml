@@ -9,28 +9,22 @@ description = "A GUI tool for computing slope angles along depth contours from N
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.8"
-authors = [{ name = "Amol Prakash", email = "prakashamol@gmail.com" }]
+authors = [{ name = "P. Amol", email = "prakashamol@gmail.com" }]
 keywords = ["bathymetry", "isobath", "slope", "netcdf", "oceanography", "gui"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering :: Visualization",
-    "Topic :: Scientific/Engineering :: Atmospheric Science",
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Visualization",
+  "Topic :: Scientific/Engineering :: Atmospheric Science",
 ]
-dependencies = [
-    "PyQt6",
-    "matplotlib",
-    "numpy",
-    "netCDF4",
-    "scipy",
-]
+dependencies = ["PyQt6", "matplotlib", "numpy", "netCDF4", "scipy"]
 
 [project.scripts]
 isobath = "isobath.__main__:main"
