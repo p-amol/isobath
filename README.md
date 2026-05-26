@@ -63,3 +63,7 @@ coordinate   angle (degrees)
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+## Note
+
+[Claude](https://claude.ai) (Anthropic) was used to assist with refactoring, bug fixing, and packaging of this project.
