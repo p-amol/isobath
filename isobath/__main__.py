@@ -1,7 +1,6 @@
 import sys
 import os
 from PyQt6.QtWidgets import (
-    QDialog,
     QApplication,
     QPushButton,
     QMainWindow,
@@ -9,7 +8,6 @@ from PyQt6.QtWidgets import (
     QDockWidget,
     QWidget,
     QLabel,
-    QComboBox,
     QMessageBox,
     QRadioButton,
     QFormLayout,
@@ -17,12 +15,11 @@ from PyQt6.QtWidgets import (
     QSpinBox,
     QDoubleSpinBox,
 )
-from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtCore import Qt
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
 from matplotlib.path import Path
 
 import numpy as np
@@ -34,7 +31,7 @@ from .lasso_selector import SelectFromCollection
 PACKAGE_DIR = os.path.dirname(__file__)
 
 
-class NavigateWidget(QDialog):
+class NavigateWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("Navigation Settings")
@@ -309,23 +306,18 @@ class MainWindow(QMainWindow):
         self.xcoord = v[:, 0]
         self.ycoord = v[:, 1]
 
-        if self.index == 0:
+        self.ax1.plot(
+            self.xcoord, self.ycoord, color="red", label=f"Contour {self.contour}"
+        )
+        if self.index > 0 and hasattr(self, "xx") and hasattr(self, "yy") and self.xx.size > 0:
             self.ax1.plot(
-                self.xcoord, self.ycoord, color="red", label=f"Contour {self.contour}"
+                self.xx,
+                self.yy,
+                "o",
+                color="blue",
+                markersize=3,
+                label="Selected Points",
             )
-        else:
-            self.ax1.plot(
-                self.xcoord, self.ycoord, color="red", label=f"Contour {self.contour}"
-            )
-            if hasattr(self, "xx") and hasattr(self, "yy") and self.xx.size > 0:
-                self.ax1.plot(
-                    self.xx,
-                    self.yy,
-                    "o",
-                    color="blue",
-                    markersize=3,
-                    label="Selected Points",
-                )
 
         self.ax1.legend()
         self.canvas.draw_idle()
@@ -522,6 +514,7 @@ class MainWindow(QMainWindow):
             return
 
         self.contour_index = -1
+        self.index = 0
         self.plot_data()
 
         self.nav.start_point.setValue(8)
@@ -581,7 +574,7 @@ class MainWindow(QMainWindow):
             )
 
     def prev_button(self):
-        if self.zstart - self.zinterval >= self.nav.start_point.minimum():
+        if self.zstart - self.zinterval >= self.nav.start_point.value():
             self.index -= 1
             self.zstart = self.zstart - self.zinterval
             if self.index >= 1:

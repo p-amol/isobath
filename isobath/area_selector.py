@@ -1,6 +1,4 @@
-import sys
-
-from PyQt6.QtWidgets import QDialog, QApplication
+from PyQt6.QtWidgets import QDialog
 from PyQt6.QtWidgets import QPushButton, QLabel, QComboBox, QMessageBox
 from PyQt6.QtWidgets import QFormLayout, QGridLayout
 from PyQt6.QtCore import pyqtSignal
@@ -124,6 +122,10 @@ class WindowSelector(QDialog):
             msg.exec()
             return
 
+        self.cbdim1.clear()
+        self.cbdim2.clear()
+        self.cbdim1.addItem(self.default_text)
+        self.cbdim2.addItem(self.default_text)
         self.cbdim1.setEnabled(True)
         self.cbdim2.setEnabled(True)
 
@@ -209,5 +211,16 @@ class WindowSelector(QDialog):
         self.canvas.flush_events()
 
     def on_save(self):
+        if not hasattr(self, "xslice") or not hasattr(self, "yslice") or not hasattr(self, "dataslice"):
+            QMessageBox.warning(
+                self,
+                "No Selection",
+                "Please draw a rectangle to select a region before saving.",
+            )
+            return
         self.submitted.emit(self.xslice, self.yslice, self.dataslice)
         self.close()
+
+    def closeEvent(self, event):
+        self.ds.close()
+        super().closeEvent(event)
