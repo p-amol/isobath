@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "isobath"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A GUI tool for computing slope angles along depth contours from NetCDF bathymetry data"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -41,3 +41,6 @@ packages = ["isobath"]
 
 [tool.hatch.build.targets.sdist]
 include = ["isobath/", "README.md", "LICENSE", "pyproject.toml"]
+
+[tool.hatch.version]
+path = "isobath/__init__.py"

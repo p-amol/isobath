@@ -1,4 +1,4 @@
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # Load matplotlib's FreeType bindings before any Qt module. If PyQt6 (pip
 # wheel) is imported first, its Qt loads the system libfreetype, and a
