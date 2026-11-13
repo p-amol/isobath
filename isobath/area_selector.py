@@ -182,10 +182,17 @@ class WindowSelector(QDialog):
         self.xc = eclick.xdata
         self.xr = erelease.xdata
 
-        i1 = find_index(self.x, self.xc)
-        i2 = find_index(self.x, self.xr)
-        j1 = find_index(self.y, self.yc)
-        j2 = find_index(self.y, self.yr)
+        # The rectangle can be dragged in any direction.
+        i1, i2 = sorted((find_index(self.x, self.xc), find_index(self.x, self.xr)))
+        j1, j2 = sorted((find_index(self.y, self.yc), find_index(self.y, self.yr)))
+
+        if i2 - i1 < 2 or j2 - j1 < 2:
+            QMessageBox.warning(
+                self,
+                "Selection Too Small",
+                "Please select a larger region.",
+            )
+            return
 
         self.xslice = self.x[i1:i2]
         self.yslice = self.y[j1:j2]
