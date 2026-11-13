@@ -241,6 +241,14 @@ class MainWindow(QMainWindow):
             vertices = path.vertices
             codes = path.codes
 
+            if len(vertices) == 0:
+                continue
+            if codes is None:
+                # Matplotlib omits codes for simple polylines (all LINETO
+                # after an initial MOVETO).
+                paths.append(Path(vertices))
+                continue
+
             current_path_vertices = []
             current_path_codes = []
 
