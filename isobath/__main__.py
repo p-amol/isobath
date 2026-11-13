@@ -44,7 +44,11 @@ class NavigateWidget(QWidget):
         self.sbd = QDoubleSpinBox()
         self.sbd.setMinimum(-5000)
         self.sbd.setMaximum(5000)
+        # The minimum value is reserved as "no depth chosen yet".
+        self.sbd.setSpecialValueText("Select depth")
         fbox.addRow(self.sbd)
+        self.depth_range = QLabel("")
+        fbox.addRow(self.depth_range)
 
         text2 = QLabel("Contour Number")
         fbox.addRow(text2)
@@ -145,7 +149,7 @@ class MainWindow(QMainWindow):
 
         self.contour_index = -1
         self.nav.sb.valueChanged.connect(self.contindexchange)
-        self.contour = 0
+        self.contour = None
         self.nav.sbd.valueChanged.connect(self.contchange)
         self.nav.anglebutton.clicked.connect(self.compute_button)
         self.nav.rb1.clicked.connect(self.radio_button)
@@ -180,8 +184,50 @@ class MainWindow(QMainWindow):
                 self.canvas.draw_idle()
 
     def contchange(self):
-        self.contour = self.nav.sbd.value()
+        value = self.nav.sbd.value()
+        if value == self.nav.sbd.minimum():
+            self.contour = None
+        else:
+            self.contour = value
         self.plot_data()
+
+    def setup_depth_range(self):
+        """Limit the depth spinbox to the data range.
+
+        The previous depth is kept if it lies inside the new range;
+        otherwise no contour is drawn until the user picks a depth.
+        """
+        data = np.ma.masked_invalid(self.datain)
+        if data.count() == 0:
+            QMessageBox.warning(
+                self,
+                "No Valid Data",
+                "The selected region contains only missing values "
+                "(e.g. all land). Please select another region.",
+            )
+            return False
+
+        self.depth_min = float(np.floor(data.min()))
+        self.depth_max = float(np.ceil(data.max()))
+
+        if self.contour is not None and not (
+            self.depth_min <= self.contour <= self.depth_max
+        ):
+            self.contour = None
+
+        self.nav.sbd.blockSignals(True)
+        # One step below the data minimum is the "Select depth" placeholder.
+        self.nav.sbd.setRange(self.depth_min - 1, self.depth_max)
+        if self.contour is None:
+            self.nav.sbd.setValue(self.nav.sbd.minimum())
+        else:
+            self.nav.sbd.setValue(self.contour)
+        self.nav.sbd.blockSignals(False)
+
+        self.nav.depth_range.setText(
+            f"Range: {data.min():g} to {data.max():g}"
+        )
+        return True
 
     def set_contnumber(self):
         self.nav.sb.setMinimum(0)
@@ -200,6 +246,12 @@ class MainWindow(QMainWindow):
             self.nav.end_point.setValue(max(self.xin))
 
     def compute_button(self):
+        if self.contour is None:
+            QMessageBox.warning(
+                self, "No Contour Depth", "Please choose a contour depth first."
+            )
+            return
+
         self.zstart = self.nav.start_point.value()
         self.zend = self.nav.end_point.value()
         self.avginterval = self.nav.avg_interval.value()
@@ -234,6 +286,13 @@ class MainWindow(QMainWindow):
 
         self.ax1.cla()
         self.ax1.contourf(self.xin, self.yin, self.datain)
+
+        if self.contour is None:
+            self.xcoord = np.array([])
+            self.ycoord = np.array([])
+            self.canvas.draw_idle()
+            return
+
         cs = self.ax1.contour(self.xin, self.yin, self.datain, [self.contour])
 
         paths = []
@@ -276,7 +335,10 @@ class MainWindow(QMainWindow):
 
         if self.cslen == 0:
             QMessageBox.warning(
-                self, "No Contour Found", f"No contour found for depth {self.contour}."
+                self,
+                "No Contour Found",
+                f"No contour found for depth {self.contour:g}. "
+                f"{self.nav.depth_range.text()}.",
             )
             self.xcoord = np.array([])
             self.ycoord = np.array([])
@@ -447,6 +509,10 @@ class MainWindow(QMainWindow):
 
         self.nav.rb1.setChecked(True)
 
+        if not self.setup_depth_range():
+            self.disable_buttons()
+            return
+
         self.activate_buttons()
 
         self.index = 0
@@ -524,6 +590,7 @@ class MainWindow(QMainWindow):
 
         self.contour_index = -1
         self.index = 0
+        self.setup_depth_range()
         self.plot_data()
 
         self.nav.start_point.setValue(8)
