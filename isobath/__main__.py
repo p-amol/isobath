@@ -44,6 +44,8 @@ class NavigateWidget(QWidget):
         self.sbd = QDoubleSpinBox()
         self.sbd.setMinimum(-5000)
         self.sbd.setMaximum(5000)
+        # Apply typed values on Enter or focus loss, not on every keystroke.
+        self.sbd.setKeyboardTracking(False)
         # The minimum value is reserved as "no depth chosen yet".
         self.sbd.setSpecialValueText("Select depth")
         fbox.addRow(self.sbd)
@@ -55,6 +57,7 @@ class NavigateWidget(QWidget):
         self.sb = QSpinBox()
         self.sb.setMinimum(0)
         self.sb.setMaximum(10)
+        self.sb.setKeyboardTracking(False)
         fbox.addRow(self.sb)
 
         text3 = QLabel("Coordinate Axis")
